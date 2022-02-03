@@ -12501,6 +12501,119 @@ paths:
                         }
       tags:
         - Query
+  /cryptoindex/oracle/last_rates_id:
+    get:
+      summary: LastRatesId query the last Rates result id
+      operationId: PratikasrCryptoindexOracleLastRatesId
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              requestId:
+                type: string
+                format: int64
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
+  '/cryptoindex/oracle/rates_result/{requestId}':
+    get:
+      summary: RatesResult defines a rpc handler method for MsgRatesData.
+      operationId: PratikasrCryptoindexOracleRatesResult
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              result:
+                type: object
+                properties:
+                  rates:
+                    type: array
+                    items:
+                      type: string
+                      format: uint64
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          type: string
+          format: int64
+      tags:
+        - Query
+  /pratikasr/cryptoindex/oracle/params:
+    get:
+      summary: Parameters queries the parameters of the module.
+      operationId: PratikasrCryptoindexOracleParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                description: params holds all the parameters of this module.
+                type: object
+            description: >-
+              QueryParamsResponse is response type for the Query/Params RPC
+              method.
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                  additionalProperties: {}
+      tags:
+        - Query
 definitions:
   cosmos.authz.v1beta1.Grant:
     type: object
@@ -19815,3 +19928,50 @@ definitions:
       and
 
       freezing clients
+  pratikasr.cryptoindex.oracle.MsgRatesDataResponse:
+    type: object
+  pratikasr.cryptoindex.oracle.Params:
+    type: object
+    description: Params defines the parameters for the module.
+  pratikasr.cryptoindex.oracle.QueryLastRatesIdResponse:
+    type: object
+    properties:
+      requestId:
+        type: string
+        format: int64
+  pratikasr.cryptoindex.oracle.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        description: params holds all the parameters of this module.
+        type: object
+    description: QueryParamsResponse is response type for the Query/Params RPC method.
+  pratikasr.cryptoindex.oracle.QueryRatesResponse:
+    type: object
+    properties:
+      result:
+        type: object
+        properties:
+          rates:
+            type: array
+            items:
+              type: string
+              format: uint64
+  pratikasr.cryptoindex.oracle.RatesCallData:
+    type: object
+    properties:
+      symbols:
+        type: array
+        items:
+          type: string
+      multiplier:
+        type: string
+        format: uint64
+  pratikasr.cryptoindex.oracle.RatesResult:
+    type: object
+    properties:
+      rates:
+        type: array
+        items:
+          type: string
+          format: uint64

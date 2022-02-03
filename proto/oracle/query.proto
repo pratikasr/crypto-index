@@ -1,0 +1,51 @@
+syntax = "proto3";
+package pratikasr.cryptoindex.oracle;
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "oracle/params.proto";
+import "oracle/rates.proto";
+// this line is used by starport scaffolding # 1
+
+option go_package = "github.com/pratikasr/crypto-index/x/oracle/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Parameters queries the parameters of the module.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/pratikasr/cryptoindex/oracle/params";
+  }
+  
+  	// RatesResult defines a rpc handler method for MsgRatesData.
+  	rpc RatesResult(QueryRatesRequest) returns (QueryRatesResponse) {
+		option (google.api.http).get = "/cryptoindex/oracle/rates_result/{request_id}";
+  	}
+
+  	// LastRatesId query the last Rates result id
+  	rpc LastRatesId(QueryLastRatesIdRequest) returns (QueryLastRatesIdResponse) {
+		option (google.api.http).get = "/cryptoindex/oracle/last_rates_id";
+  	}
+// this line is used by starport scaffolding # 2
+}
+
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params holds all the parameters of this module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryRatesRequest {int64 request_id = 1;}
+
+message QueryRatesResponse {
+  RatesResult result = 1;
+}
+
+message QueryLastRatesIdRequest {}
+
+message QueryLastRatesIdResponse {int64 request_id = 1;}
+
+// this line is used by starport scaffolding # 3

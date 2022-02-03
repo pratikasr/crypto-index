@@ -90,9 +90,9 @@ import (
 
 	"github.com/pratikasr/crypto-index/docs"
 
-	cryptoindexmodule "github.com/pratikasr/crypto-index/x/cryptoindex"
-	cryptoindexmodulekeeper "github.com/pratikasr/crypto-index/x/cryptoindex/keeper"
-	cryptoindexmoduletypes "github.com/pratikasr/crypto-index/x/cryptoindex/types"
+	oraclemodule "github.com/pratikasr/crypto-index/x/oracle"
+	oraclemodulekeeper "github.com/pratikasr/crypto-index/x/oracle/keeper"
+	oraclemoduletypes "github.com/pratikasr/crypto-index/x/oracle/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
@@ -143,7 +143,7 @@ var (
 		evidence.AppModuleBasic{},
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
-		cryptoindexmodule.AppModuleBasic{},
+		oraclemodule.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -213,7 +213,8 @@ type App struct {
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 
-	CryptoindexKeeper cryptoindexmodulekeeper.Keeper
+	ScopedOracleKeeper capabilitykeeper.ScopedKeeper
+	OracleKeeper       oraclemodulekeeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// mm is the module manager
@@ -250,7 +251,7 @@ func New(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
-		cryptoindexmoduletypes.StoreKey,
+		oraclemoduletypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -349,19 +350,25 @@ func New(
 		&stakingKeeper, govRouter,
 	)
 
-	app.CryptoindexKeeper = *cryptoindexmodulekeeper.NewKeeper(
+	scopedOracleKeeper := app.CapabilityKeeper.ScopeToModule(oraclemoduletypes.ModuleName)
+	app.ScopedOracleKeeper = scopedOracleKeeper
+	app.OracleKeeper = *oraclemodulekeeper.NewKeeper(
 		appCodec,
-		keys[cryptoindexmoduletypes.StoreKey],
-		keys[cryptoindexmoduletypes.MemStoreKey],
-		app.GetSubspace(cryptoindexmoduletypes.ModuleName),
+		keys[oraclemoduletypes.StoreKey],
+		keys[oraclemoduletypes.MemStoreKey],
+		app.GetSubspace(oraclemoduletypes.ModuleName),
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		scopedOracleKeeper,
 	)
-	cryptoindexModule := cryptoindexmodule.NewAppModule(appCodec, app.CryptoindexKeeper, app.AccountKeeper, app.BankKeeper)
+	oracleModule := oraclemodule.NewAppModule(appCodec, app.OracleKeeper, app.AccountKeeper, app.BankKeeper)
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := ibcporttypes.NewRouter()
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
+	ibcRouter.AddRoute(oraclemoduletypes.ModuleName, oracleModule)
 	// this line is used by starport scaffolding # ibc/app/router
 	app.IBCKeeper.SetRouter(ibcRouter)
 
@@ -395,7 +402,7 @@ func New(
 		ibc.NewAppModule(app.IBCKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
-		cryptoindexModule,
+		oracleModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -430,7 +437,7 @@ func New(
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
-		cryptoindexmoduletypes.ModuleName,
+		oraclemoduletypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
@@ -453,7 +460,7 @@ func New(
 		evidence.NewAppModule(app.EvidenceKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		transferModule,
-		cryptoindexModule,
+		oracleModule,
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 	app.sm.RegisterStoreDecoders()
@@ -641,7 +648,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(crisistypes.ModuleName)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
-	paramsKeeper.Subspace(cryptoindexmoduletypes.ModuleName)
+	paramsKeeper.Subspace(oraclemoduletypes.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
 
 	return paramsKeeper

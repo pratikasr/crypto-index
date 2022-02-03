@@ -1,0 +1,13 @@
+syntax = "proto3";
+package pratikasr.cryptoindex.oracle;
+
+option go_package = "github.com/pratikasr/crypto-index/x/oracle/types";
+
+message RatesCallData {
+  repeated string symbols = 1;
+  uint64 multiplier = 2;
+}
+
+message RatesResult {
+  repeated uint64 rates = 1;
+}

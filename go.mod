@@ -19,6 +19,7 @@ require (
 )
 
 require (
+	github.com/bandprotocol/bandchain-packet v0.0.2
 	github.com/golang/protobuf v1.5.2
 	github.com/google/go-cmp v0.5.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0
